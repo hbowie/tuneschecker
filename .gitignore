@@ -1,0 +1,7 @@
+/build.xml
+/build/
+/dist/
+/manifest.mf
+/nbproject/
+.DS_Store
+/javagen/includes/
