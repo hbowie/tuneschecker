@@ -16,6 +16,7 @@
 
 package com.powersurgepub.tuneschecker;
 
+  import com.powersurgepub.psdatalib.txbio.*;
   import com.powersurgepub.psdatalib.ui.*;
   import com.powersurgepub.psfiles.*;
   import com.powersurgepub.psutils.*;
@@ -48,6 +49,7 @@ public class TunesChecker
   
   public static final String PREFS_ATTRIBUTES = "show-attributes";
   public static final String PREFS_MIN_TRACKS = "min-tracks-for-album";
+  public static final String OPML_EXPORT      = "export-to-opml";
   
   public static final String PROGRAM_NAME    = "TunesChecker";
   public static final String PROGRAM_VERSION = "0.10";
@@ -379,6 +381,31 @@ public class TunesChecker
     }
   }
   
+  private void exportToOPML() {
+    File opmlFile = null;
+    String opmlExportStr = userPrefs.getPref(OPML_EXPORT, "");
+    if (opmlExportStr.length() > 0) {
+      File opmlExportFile = new File(opmlExportStr);
+      fileChooser.setSelectedFile(opmlExportFile);
+    }
+    fileChooser.setDialogTitle ("Export to OPML");
+    fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+    // fileChooser.setSelectedFile("tunes.opml");
+    opmlFile = fileChooser.showSaveDialog(this);
+    if (opmlFile != null) {
+      MarkupWriter writer = new MarkupWriter(opmlFile, MarkupWriter.OPML_FORMAT);
+      writer.openForOutput();
+      writer.startBody();
+      tunes.exportToOPML(writer);
+      writer.endBody();
+      writer.close();
+      userPrefs.setPref(OPML_EXPORT, opmlFile.toString());
+          Logger.getShared().recordEvent(LogEvent.NORMAL, 
+              "Exported Library info to OPML file at " + opmlFile.toString(), 
+              false);
+    } // end if user approved a file/folder choice
+  }
+  
   private void analyze() {
     TunesAnalysis analysis = new TunesAnalysis();
     analysis.setAttributesOption(attributesOptionCheckBox.isSelected());
@@ -490,6 +517,8 @@ public class TunesChecker
     fileMenu = new javax.swing.JMenu();
     openLib1MenuItem = new javax.swing.JMenuItem();
     openLib2MenuItem = new javax.swing.JMenuItem();
+    exportMenu = new javax.swing.JMenu();
+    exportToOPMLMenuItem = new javax.swing.JMenuItem();
     analyzeMenuItem = new javax.swing.JMenuItem();
     clearMenuItem = new javax.swing.JMenuItem();
     editMenu = new javax.swing.JMenu();
@@ -606,8 +635,8 @@ public class TunesChecker
     gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
     optionsPanel.add(minTracksLabel, gridBagConstraints);
 
-    minTracksSlider.setMaximum(10);
-    minTracksSlider.setMinimum(1);
+    minTracksSlider.setMajorTickSpacing(5);
+    minTracksSlider.setMaximum(20);
     minTracksSlider.setMinorTickSpacing(1);
     minTracksSlider.setPaintLabels(true);
     minTracksSlider.setPaintTicks(true);
@@ -666,6 +695,18 @@ public class TunesChecker
 
     openLib2MenuItem.setText("Open Library 2...");
     fileMenu.add(openLib2MenuItem);
+
+    exportMenu.setText("Export");
+
+    exportToOPMLMenuItem.setText("To OPML...");
+    exportToOPMLMenuItem.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        exportToOPMLMenuItemActionPerformed(evt);
+      }
+    });
+    exportMenu.add(exportToOPMLMenuItem);
+
+    fileMenu.add(exportMenu);
 
     analyzeMenuItem.setText("Analyze...");
     analyzeMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -732,6 +773,10 @@ public class TunesChecker
     openLibrary2();
   }//GEN-LAST:event_openLib2ButtonActionPerformed
 
+  private void exportToOPMLMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportToOPMLMenuItemActionPerformed
+    exportToOPML();
+  }//GEN-LAST:event_exportToOPMLMenuItemActionPerformed
+
   /**
    @param args the command line arguments
    */
@@ -777,6 +822,8 @@ public class TunesChecker
   private javax.swing.JButton clearButton;
   private javax.swing.JMenuItem clearMenuItem;
   private javax.swing.JMenu editMenu;
+  private javax.swing.JMenu exportMenu;
+  private javax.swing.JMenuItem exportToOPMLMenuItem;
   private javax.swing.JMenu fileMenu;
   private javax.swing.JMenu helpMenu;
   private javax.swing.JPanel libsPanel;

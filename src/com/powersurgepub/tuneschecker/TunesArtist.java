@@ -15,6 +15,7 @@
  */
 package com.powersurgepub.tuneschecker;
 
+  import com.powersurgepub.psdatalib.txbio.*;
   import java.util.*;
   import javax.swing.tree.*;
 
@@ -37,6 +38,7 @@ public class TunesArtist
   private     TunesCommonName     commonName = new TunesCommonName();
   
   private ArrayList<TunesAlbum>   albums = new ArrayList<TunesAlbum>();
+  private ArrayList<TunesAlbum>   albumsByYear = new ArrayList<TunesAlbum>();
   private TunesAlbum              album = new TunesAlbum();
   private int                     index = -1;
   
@@ -117,7 +119,7 @@ public class TunesArtist
         || artistFolderName.length() == 0) {
       artistFolderName = artist;
     }
-    commonName.setName(artist);
+    commonName.setName(artist, TunesCommonName.ARTIST_NAME);
   }
   
   public String getArtist() {
@@ -127,7 +129,7 @@ public class TunesArtist
   public void setSortArtist(String sortArtist) {
     this.sortArtist = sortArtist;
     if (commonName == null || commonName.length() == 0) {
-      commonName.setName(sortArtist);
+      commonName.setName(sortArtist, TunesCommonName.ARTIST_NAME);
     }
   }
   
@@ -138,7 +140,7 @@ public class TunesArtist
   public void setArtistFolderName(String artistFolderName) {
     this.artistFolderName = artistFolderName;
     if (commonName == null || commonName.length() == 0) {
-      commonName.setName(artistFolderName);
+      commonName.setName(artistFolderName, TunesCommonName.ARTIST_NAME);
     }
   }
   
@@ -162,6 +164,7 @@ public class TunesArtist
     
     if (albums.size() == 0) {
       albums.add(albumToStore);
+      albumsByYear.add(albumToStore);
       index = 0;
       album = albumToStore;
     }
@@ -169,6 +172,7 @@ public class TunesArtist
     if (index >= 0 && index < albums.size() && album != null
         && album.equals(albumToStore)) {
       album.merge(albumToStore);
+      sortAlbumsByYear();
     }
     else {
       index = 0;
@@ -181,18 +185,38 @@ public class TunesArtist
       } // end while looking for the right insertion point
       if (index == albums.size() || comparison < 0) {
         albums.add(index, albumToStore);
+        albumsByYear.add(albumToStore);
         album = albums.get(index);
       } 
       else {
         albums.get(index).merge(albumToStore);
         album = albums.get(index);
       }
+      sortAlbumsByYear();
     } // end if we had to go looking for an insertion point
     
     album.setTunesArtist(this);
     
     return album;
   }
+  
+  private void sortAlbumsByYear() {
+    boolean sorted = false;
+    TunesAlbum prior;
+    TunesAlbum next;
+    while (! sorted) {
+      sorted = true;
+      for (int i = 1; i < albumsByYear.size(); i++) {
+        prior = albumsByYear.get(i - 1);
+        next  = albumsByYear.get(i);
+        if (next.getYear() < prior.getYear()) {
+          sorted = false;
+          albumsByYear.set(i, prior);
+          albumsByYear.set(i - 1, next);
+        } // end if we need to swap entries
+      } // end one pass through the list
+    } // end while not yet sorted
+  } // end method sortAlbumsByYear
   
   public void display() {
     
@@ -242,6 +266,19 @@ public class TunesArtist
     for (TunesAlbum album: albums) {
       album.analyze(collection, analysis);
     }
+  }
+  
+  /**
+   Export this object to an OPML file. 
+  
+   @param writer The OPML writer. 
+  */
+  public void exportToOPML(MarkupWriter writer) {
+    writer.startOutline(artist);
+    for (TunesAlbum album: albumsByYear) {
+      album.exportToOPML(writer);
+    }
+    writer.endOutline();
   }
 
   /**

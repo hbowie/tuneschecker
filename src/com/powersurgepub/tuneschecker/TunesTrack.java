@@ -15,6 +15,8 @@
  */
 package com.powersurgepub.tuneschecker;
 
+  import com.powersurgepub.psdatalib.txbio.*;
+  import com.powersurgepub.psdatalib.txbmodel.*;
   import java.util.*;
   import javax.swing.tree.*;
 
@@ -127,7 +129,7 @@ public class TunesTrack
       sortName = TunesCollection.makeSortName(name);
     }
     if (commonName == null || commonName.length() == 0) {
-      commonName.setName(name, true);
+      commonName.setName(name, TunesCommonName.TRACK_NAME);
     }
   }
   
@@ -142,7 +144,7 @@ public class TunesTrack
   public void setSortName(String sortName) {
     this.sortName = sortName;
     if (commonName == null || commonName.length() == 0) {
-      commonName.setName(sortName, true);
+      commonName.setName(sortName, TunesCommonName.TRACK_NAME);
     }
   }
   
@@ -153,7 +155,7 @@ public class TunesTrack
   public void setFileName(String fileName) {
     this.fileName = fileName;
     if (commonName == null || commonName.length() == 0) {
-      commonName.setName(fileName, true);
+      commonName.setName(fileName, TunesCommonName.TRACK_NAME);
     }
   }
   
@@ -326,6 +328,25 @@ public class TunesTrack
     for (TunesFile nextFile: files) {
       // nextFile.analyze(collection);
     }
+  }
+  
+  /**
+   Export this object to an OPML file. 
+  
+   @param writer The OPML writer. 
+  */
+  public void exportToOPML(MarkupWriter writer) {
+    writer.startOutlineOpen();
+    writer.writeOutlineAttribute(TextType.TEXT, name);
+    writer.writeOutlineAttribute("Number", 
+        String.format("%02d", getTrackNumber()));
+    writer.writeOutlineAttribute("Genre", genre);
+    writer.writeOutlineAttribute("Rating", String.valueOf(rating / 20.0));
+    writer.startOutlineClose();
+    /* for (TunesTrack nextTrack: tracks) {
+      nextTrack.exportToOPML(writer);
+    } */
+    writer.endOutline();
   }
   
   /**

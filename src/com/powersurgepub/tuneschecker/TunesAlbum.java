@@ -15,6 +15,8 @@
  */
 package com.powersurgepub.tuneschecker;
 
+  import com.powersurgepub.psdatalib.txbio.*;
+  import com.powersurgepub.psdatalib.txbmodel.*;
   import java.util.*;
   import javax.swing.tree.*;
 
@@ -116,7 +118,7 @@ public class TunesAlbum
     if (album2.getTrackCount() > trackCount) {
       setTrackCount(album2.getTrackCount());
     }
-    if (year == 0 || album2.getYear() < year) {
+    if (year == 0 || (album2.getYear() > 0 && album2.getYear() < year)) {
       setYear(album2.getYear());
     }
     if (album2.getDiscCount() > discCount) {
@@ -341,7 +343,8 @@ public class TunesAlbum
       nextTrack.analyze(collection, analysis);
     }
     
-    if (tracks.size() > analysis.getMinTracks()) {
+    if (tracks.size() > analysis.getMinTracks()
+        && analysis.getMinTracks() > 0) {
       for (int trackNumber = 1; 
           trackNumber <= trackCount || trackNumber < tracksByNumber.size(); 
           trackNumber++) {
@@ -356,6 +359,31 @@ public class TunesAlbum
       }
     }
 
+  }
+  
+  /**
+   Export this object to an OPML file. 
+  
+   @param writer The OPML writer. 
+  */
+  public void exportToOPML(MarkupWriter writer) {
+    
+    String yyyy = "    ";
+    if (year > 0) {
+      yyyy = String.valueOf(year);
+    }
+    
+    writer.startOutlineOpen();
+    writer.writeOutlineAttribute(TextType.TEXT, album);
+    writer.writeOutlineAttribute("Artist", artist);
+    writer.writeOutlineAttribute("Year", yyyy);
+    writer.startOutlineClose();
+    for (TunesTrack nextTrack: tracksByNumber) {
+      if (nextTrack != null) {
+        nextTrack.exportToOPML(writer);
+      }
+    }
+    writer.endOutline();
   }
   
   /**

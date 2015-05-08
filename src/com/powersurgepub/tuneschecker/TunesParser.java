@@ -83,8 +83,6 @@ public class TunesParser
   
   private     int                 libIndex = 0;
   
-  private     int                 artistsLoaded = 0;
-  private     int                 albumsLoaded = 0;
   private     int                 tracksLoaded = 0;
   
   /**
@@ -495,8 +493,6 @@ public class TunesParser
     }
     
     String[] artists;
-    artistsLoaded = 0;
-    albumsLoaded = 0;
     if (ok) {
       artists = mediaMusicFolder.list();
       for (int i = 0; i < artists.length; i++) {
@@ -525,16 +521,11 @@ public class TunesParser
     tunes.getLibraries().get(libIndex).setCount
         (TunesLibrary.MEDIA, TunesLibrary.TRACKS, tracksLoaded);
     
-    Logger.getShared().recordEvent(LogEvent.NORMAL, 
-        "Loaded " + String.valueOf(artistsLoaded) + " artists", false);
-    Logger.getShared().recordEvent(LogEvent.NORMAL, 
-        "Loaded " + String.valueOf(albumsLoaded) + " albums", false);
     return tracksLoaded;
   }  
   
   private void scanArtistFolder() {
     
-    artistsLoaded++;
     artistFolder = new File(mediaMusicFolder, 
         artist.getArtistFolderName());
     if (! artistFolder.exists()) {
@@ -564,7 +555,6 @@ public class TunesParser
   
   private void scanAlbumFolder() {
     
-    albumsLoaded++;
     File albumFolder = new File(artistFolder, 
         album.getAlbumFolderName());
     if (albumFolder.exists()
@@ -592,9 +582,6 @@ public class TunesParser
         if (trackFileName.hasFileName()) {
           track.setFileName(trackFileName.getFileName());
         }
-        
-        // System.out.println("      " + String.valueOf(track.getTrackNumber())
-        //     + ". " + track.getSortName());
         
         track.getSources().setFromFolder(libIndex);
         

@@ -15,6 +15,7 @@
  */
 package com.powersurgepub.tuneschecker;
 
+  import com.powersurgepub.psdatalib.txbio.*;
   import com.powersurgepub.psutils.*;
   import java.util.*;
   import javax.swing.*;
@@ -182,6 +183,12 @@ public class TunesCollection {
     }
     anomalies.nodeStructureChanged(anomalyRoot);
     
+  }
+  
+  public void exportToOPML(MarkupWriter writer) {
+    for (TunesArtist nextArtist: artists) {
+      nextArtist.exportToOPML(writer);
+    }
   }
   
   public DefaultMutableTreeNode getAnomalyRoot() {

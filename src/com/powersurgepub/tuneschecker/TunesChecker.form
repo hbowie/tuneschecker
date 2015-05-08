@@ -25,6 +25,21 @@
                 <Property name="text" type="java.lang.String" value="Open Library 2..."/>
               </Properties>
             </MenuItem>
+            <Menu class="javax.swing.JMenu" name="exportMenu">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Export"/>
+              </Properties>
+              <SubComponents>
+                <MenuItem class="javax.swing.JMenuItem" name="exportToOPMLMenuItem">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="To OPML..."/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="exportToOPMLMenuItemActionPerformed"/>
+                  </Events>
+                </MenuItem>
+              </SubComponents>
+            </Menu>
             <MenuItem class="javax.swing.JMenuItem" name="analyzeMenuItem">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Analyze..."/>
@@ -231,8 +246,8 @@
             </Component>
             <Component class="javax.swing.JSlider" name="minTracksSlider">
               <Properties>
-                <Property name="maximum" type="int" value="10"/>
-                <Property name="minimum" type="int" value="1"/>
+                <Property name="majorTickSpacing" type="int" value="5"/>
+                <Property name="maximum" type="int" value="20"/>
                 <Property name="minorTickSpacing" type="int" value="1"/>
                 <Property name="paintLabels" type="boolean" value="true"/>
                 <Property name="paintTicks" type="boolean" value="true"/>
