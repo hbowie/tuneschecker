@@ -184,6 +184,7 @@ public class TunesCommonName {
             && wordCount == (wordsInName)
             && (! bandName)) {
           skipRemaining = true;
+          // System.out.println("Name with And: " + in);
         }
         else
         if (nameType == ARTIST_NAME
@@ -270,11 +271,6 @@ public class TunesCommonName {
       String lastName = name.substring(lastNameStart, lastNameEnd);
       name.delete(lastNameStart, lastNameEnd);
       name.insert(0, lastName);
-    }
-    
-    if (nameType == ARTIST_NAME) {
-      System.out.println("TunesCommonName: Artist Name " + in 
-          + " becomes " + name.toString());
     }
     
   } // end method setName

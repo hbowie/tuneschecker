@@ -15,8 +15,11 @@
  */
 package com.powersurgepub.tuneschecker;
 
+  import com.powersurgepub.psdatalib.psdata.*;
+  import com.powersurgepub.psdatalib.tabdelim.*;
   import com.powersurgepub.psdatalib.txbio.*;
   import com.powersurgepub.psdatalib.txbmodel.*;
+  import java.io.*;
   import java.util.*;
   import javax.swing.tree.*;
 
@@ -28,6 +31,18 @@ package com.powersurgepub.tuneschecker;
 public class TunesTrack 
   implements Comparable<TunesTrack>,
              TunesObject {
+  
+  public static final String      TRACK_NUMBER      = "Track Number";
+  public static final String      TRACK_NAME        = "Track Name";
+  public static final String      TRACK_SORT_NAME   = "Track Sort Name";
+  public static final String      TRACK_FILE_NAME   = "Track File Name";
+  public static final String      TRACK_COMMON_NAME = "Track Common Name";
+  public static final String      TRACK_ARTIST      = "Track Artist";
+  public static final String      COMPOSER          = "Composer";
+  public static final String      GENRE             = "Genre";
+  public static final String      YEAR              = "Year";
+  public static final String      RATING            = "Rating";
+  public static final String      PLAYING_TIME      = "Time";
   
   private     TunesAlbum          tunesAlbum = null;
   
@@ -347,6 +362,46 @@ public class TunesTrack
       nextTrack.exportToOPML(writer);
     } */
     writer.endOutline();
+  }
+  
+  public static void addRecDefColumns(RecordDefinition recDef) {
+
+    recDef.addColumn(TRACK_NUMBER);
+    recDef.addColumn(TRACK_NAME);
+    recDef.addColumn(TRACK_SORT_NAME);
+    recDef.addColumn(TRACK_FILE_NAME);
+    recDef.addColumn(TRACK_COMMON_NAME);
+    recDef.addColumn(TRACK_ARTIST);
+    recDef.addColumn(COMPOSER);
+    recDef.addColumn(GENRE);
+    recDef.addColumn(YEAR);
+    recDef.addColumn(RATING);
+    recDef.addColumn(PLAYING_TIME);
+    
+    // TunesTrack.addRecDefColumns(recDef);
+  }
+  
+  public void exportToTabDelim(
+      TabDelimFile tdf, 
+      RecordDefinition recDef, 
+      DataRecord rec) 
+        throws IOException {
+    
+    rec.storeField(recDef, TRACK_NUMBER, 
+        String.format("%02d", getTrackNumber()));
+    rec.storeField(recDef, TRACK_NAME, name);
+    rec.storeField(recDef, TRACK_SORT_NAME, sortName);
+    rec.storeField(recDef, TRACK_FILE_NAME, fileName);
+    rec.storeField(recDef, TRACK_COMMON_NAME, commonName.toString());
+    rec.storeField(recDef, TRACK_ARTIST, artist);
+    rec.storeField(recDef, COMPOSER, composer);
+    rec.storeField(recDef, GENRE, genre);
+    rec.storeField(recDef, YEAR, String.valueOf(year));
+    rec.storeField(recDef, RATING, String.valueOf(rating / 20.0));
+    rec.storeField(recDef, PLAYING_TIME, String.valueOf(totalTime));
+    
+    tdf.nextRecordOut(rec);
+    
   }
   
   /**

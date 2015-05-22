@@ -15,7 +15,10 @@
  */
 package com.powersurgepub.tuneschecker;
 
+  import com.powersurgepub.psdatalib.psdata.*;
+  import com.powersurgepub.psdatalib.tabdelim.*;
   import com.powersurgepub.psdatalib.txbio.*;
+  import java.io.*;
   import java.util.*;
   import javax.swing.tree.*;
 
@@ -27,6 +30,11 @@ package com.powersurgepub.tuneschecker;
 public class TunesArtist 
   implements Comparable<TunesArtist>,
              TunesObject {
+  
+  public static final String ARTIST = "Artist";
+  public static final String SORT_ARTIST = "Sort Artist";
+  public static final String ARTIST_FOLDER_NAME = "Artist Folder Name";
+  public static final String ARTIST_COMMON_NAME = "Arist Common Name";
   
   private     TunesSources        sources = new TunesSources();
   
@@ -96,7 +104,9 @@ public class TunesArtist
    @param artist2 The second instance for the same artist. 
   */
   public void merge(TunesArtist artist2) {
-    if (artist2.getArtist().length() > artist.length()) {
+    if (artist2.getArtist().length() > 0
+        && (artist2.getArtist().length() < artist.length()
+          || artist.length() == 0)) {
       setArtist(artist2.getArtist());
     }
     if (artist2.getSortArtist().length() > 0 
@@ -104,7 +114,9 @@ public class TunesArtist
           || sortArtist.length() == 0)) {
       setSortArtist(artist2.getSortArtist());
     }
-    if (artist2.getArtistFolderName().length() > artistFolderName.length()) {
+    if (artist2.getArtistFolderName().length() > 0
+        && (artist2.getArtistFolderName().length() < artistFolderName.length()
+          || artistFolderName.length() == 0)) {
       setArtistFolderName(artist2.getArtistFolderName());
     }
     sources.merge(artist2.getSources());
@@ -279,6 +291,32 @@ public class TunesArtist
       album.exportToOPML(writer);
     }
     writer.endOutline();
+  }
+  
+  public static void addRecDefColumns(RecordDefinition recDef) {
+    recDef.addColumn(ARTIST);
+    recDef.addColumn(SORT_ARTIST);
+    recDef.addColumn(ARTIST_FOLDER_NAME);
+    recDef.addColumn(ARTIST_COMMON_NAME);
+    
+    TunesAlbum.addRecDefColumns(recDef);
+  }
+  
+  public void exportToTabDelim(
+      TabDelimFile tdf, 
+      RecordDefinition recDef, 
+      DataRecord rec) 
+        throws IOException {
+    
+    rec.storeField(recDef, ARTIST, artist);
+    rec.storeField(recDef, SORT_ARTIST, sortArtist);
+    rec.storeField(recDef, ARTIST_FOLDER_NAME, artistFolderName);
+    rec.storeField(recDef, ARTIST_COMMON_NAME, commonName.toString());
+    
+    for (TunesAlbum album: albumsByYear) {
+      album.exportToTabDelim(tdf, recDef, rec);
+    }
+    
   }
 
   /**

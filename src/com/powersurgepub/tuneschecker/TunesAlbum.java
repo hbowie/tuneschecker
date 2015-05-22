@@ -15,8 +15,11 @@
  */
 package com.powersurgepub.tuneschecker;
 
+  import com.powersurgepub.psdatalib.psdata.*;
+  import com.powersurgepub.psdatalib.tabdelim.*;
   import com.powersurgepub.psdatalib.txbio.*;
   import com.powersurgepub.psdatalib.txbmodel.*;
+  import java.io.*;
   import java.util.*;
   import javax.swing.tree.*;
 
@@ -27,6 +30,12 @@ package com.powersurgepub.tuneschecker;
 public class TunesAlbum 
   implements Comparable<TunesAlbum>,
              TunesObject {
+  
+  public static final String      ALBUM_ARTIST = "Album Artist";
+  public static final String      ALBUM = "Album";
+  public static final String      SORT_ALBUM = "Sort Album";
+  public static final String      ALBUM_FOLDER_NAME = "Album Folder Name";
+  public static final String      ALBUM_COMMON_NAME = "Album Common Name";
   
   private     TunesArtist         tunesArtist = null;
   
@@ -384,6 +393,38 @@ public class TunesAlbum
       }
     }
     writer.endOutline();
+  }
+  
+  
+  public static void addRecDefColumns(RecordDefinition recDef) {
+
+    recDef.addColumn(ALBUM_ARTIST);
+    recDef.addColumn(ALBUM);
+    recDef.addColumn(SORT_ALBUM);
+    recDef.addColumn(ALBUM_FOLDER_NAME);
+    recDef.addColumn(ALBUM_COMMON_NAME);
+    
+    TunesTrack.addRecDefColumns(recDef);
+  }
+  
+  public void exportToTabDelim(
+      TabDelimFile tdf, 
+      RecordDefinition recDef, 
+      DataRecord rec) 
+        throws IOException {
+    
+    rec.storeField(recDef, ALBUM_ARTIST, artist);
+    rec.storeField(recDef, ALBUM, album);
+    rec.storeField(recDef, SORT_ALBUM, sortAlbum);
+    rec.storeField(recDef, ALBUM_FOLDER_NAME, albumFolderName);
+    rec.storeField(recDef, ALBUM_COMMON_NAME, commonName.toString());
+    
+    for (TunesTrack nextTrack: tracksByNumber) {
+      if (nextTrack != null) {
+        nextTrack.exportToTabDelim(tdf, recDef, rec);
+      }
+    }
+    
   }
   
   /**

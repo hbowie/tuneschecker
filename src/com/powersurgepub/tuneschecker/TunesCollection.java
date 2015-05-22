@@ -15,8 +15,11 @@
  */
 package com.powersurgepub.tuneschecker;
 
+  import com.powersurgepub.psdatalib.psdata.*;
+  import com.powersurgepub.psdatalib.tabdelim.*;
   import com.powersurgepub.psdatalib.txbio.*;
   import com.powersurgepub.psutils.*;
+  import java.io.*;
   import java.util.*;
   import javax.swing.*;
   import javax.swing.table.*;
@@ -189,6 +192,22 @@ public class TunesCollection {
     for (TunesArtist nextArtist: artists) {
       nextArtist.exportToOPML(writer);
     }
+  }
+  
+  public static void addRecDefColumns(RecordDefinition recDef) {
+    TunesArtist.addRecDefColumns(recDef);
+  }
+  
+  public void exportToTabDelim(
+      TabDelimFile tdf, 
+      RecordDefinition recDef, 
+      DataRecord rec) 
+        throws IOException {
+    
+    for (TunesArtist nextArtist: artists) {
+      nextArtist.exportToTabDelim(tdf, recDef, rec);
+    }
+    
   }
   
   public DefaultMutableTreeNode getAnomalyRoot() {

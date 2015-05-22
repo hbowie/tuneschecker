@@ -16,6 +16,8 @@
 
 package com.powersurgepub.tuneschecker;
 
+  import com.powersurgepub.psdatalib.psdata.*;
+  import com.powersurgepub.psdatalib.tabdelim.*;
   import com.powersurgepub.psdatalib.txbio.*;
   import com.powersurgepub.psdatalib.ui.*;
   import com.powersurgepub.psfiles.*;
@@ -49,10 +51,12 @@ public class TunesChecker
   
   public static final String PREFS_ATTRIBUTES = "show-attributes";
   public static final String PREFS_MIN_TRACKS = "min-tracks-for-album";
-  public static final String OPML_EXPORT      = "export-to-opml";
+  // public static final String OPML_EXPORT      = "export-to-opml";
+  // public static final String TAB_DELIM_EXPORT = "export-to-tab-delim";
+  public static final String EXPORT_FOLDER    = "export-folder";
   
   public static final String PROGRAM_NAME    = "TunesChecker";
-  public static final String PROGRAM_VERSION = "0.10";
+  public static final String PROGRAM_VERSION = "0.20";
 
   public static final int    CHILD_WINDOW_X_OFFSET = 60;
   public static final int    CHILD_WINDOW_Y_OFFSET = 60;
@@ -383,10 +387,17 @@ public class TunesChecker
   
   private void exportToOPML() {
     File opmlFile = null;
-    String opmlExportStr = userPrefs.getPref(OPML_EXPORT, "");
-    if (opmlExportStr.length() > 0) {
-      File opmlExportFile = new File(opmlExportStr);
-      fileChooser.setSelectedFile(opmlExportFile);
+    String exportFolderStr = userPrefs.getPref(EXPORT_FOLDER, "");
+    if (exportFolderStr.length() > 0) {
+      File exportFolder = new File(exportFolderStr);
+      if (exportFolder.exists()
+          && exportFolder.isDirectory()
+          && exportFolder.canWrite()) {
+        fileChooser.setCurrentDirectory(exportFolder);
+        File opmlExportFile = new File(exportFolder,
+            "tunes-outline-" + FilePrefs.getBackupDate() + ".opml");
+        fileChooser.setSelectedFile(opmlExportFile);
+      }
     }
     fileChooser.setDialogTitle ("Export to OPML");
     fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -399,11 +410,49 @@ public class TunesChecker
       tunes.exportToOPML(writer);
       writer.endBody();
       writer.close();
-      userPrefs.setPref(OPML_EXPORT, opmlFile.toString());
-          Logger.getShared().recordEvent(LogEvent.NORMAL, 
-              "Exported Library info to OPML file at " + opmlFile.toString(), 
-              false);
+      userPrefs.setPref(EXPORT_FOLDER, opmlFile.getParent().toString());
+      Logger.getShared().recordEvent(LogEvent.NORMAL, 
+          "Exported Library info to OPML file at " + opmlFile.toString(), 
+          false);
     } // end if user approved a file/folder choice
+  }
+  
+  private void exportToTabDelim() {
+    File tabDelimFile = null;
+    String exportFolderStr = userPrefs.getPref(EXPORT_FOLDER, "");
+    if (exportFolderStr.length() > 0) {
+      File exportFolder = new File(exportFolderStr);
+      if (exportFolder.exists()
+          && exportFolder.isDirectory()
+          && exportFolder.canWrite()) {
+        fileChooser.setCurrentDirectory(exportFolder);
+        File tabDelimExportFile = new File(exportFolder,
+            "tunes-tab-delim-" + FilePrefs.getBackupDate() + ".txt");
+        fileChooser.setSelectedFile(tabDelimExportFile);
+      }
+    }
+    fileChooser.setDialogTitle("Export to Tab-Delimited");
+    fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+    tabDelimFile = fileChooser.showSaveDialog(this);
+    if (tabDelimFile != null) {
+      TabDelimFile tdf = new TabDelimFile(tabDelimFile);
+      RecordDefinition recDef = new RecordDefinition();
+      TunesCollection.addRecDefColumns(recDef);
+      DataRecord rec = new DataRecord();
+      try {
+        tdf.openForOutput(recDef);
+        tunes.exportToTabDelim(tdf, recDef, rec);
+        tdf.close();
+      } catch (IOException e) {
+        trouble.report("I/O Error trying to export to tab-delimited", 
+            "I/O Error", JOptionPane.ERROR_MESSAGE);
+      }
+      userPrefs.setPref(EXPORT_FOLDER, tabDelimFile.getParent().toString());
+      Logger.getShared().recordEvent(LogEvent.NORMAL, 
+          "Exported Library info to Tab-Delimited file at " + tabDelimFile.toString(), 
+          false);
+    }
+    
   }
   
   private void analyze() {
@@ -517,10 +566,11 @@ public class TunesChecker
     fileMenu = new javax.swing.JMenu();
     openLib1MenuItem = new javax.swing.JMenuItem();
     openLib2MenuItem = new javax.swing.JMenuItem();
-    exportMenu = new javax.swing.JMenu();
-    exportToOPMLMenuItem = new javax.swing.JMenuItem();
     analyzeMenuItem = new javax.swing.JMenuItem();
     clearMenuItem = new javax.swing.JMenuItem();
+    exportMenu = new javax.swing.JMenu();
+    exportToOPMLMenuItem = new javax.swing.JMenuItem();
+    exportToTabDelim = new javax.swing.JMenuItem();
     editMenu = new javax.swing.JMenu();
     windowMenu = new javax.swing.JMenu();
     helpMenu = new javax.swing.JMenu();
@@ -696,18 +746,6 @@ public class TunesChecker
     openLib2MenuItem.setText("Open Library 2...");
     fileMenu.add(openLib2MenuItem);
 
-    exportMenu.setText("Export");
-
-    exportToOPMLMenuItem.setText("To OPML...");
-    exportToOPMLMenuItem.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        exportToOPMLMenuItemActionPerformed(evt);
-      }
-    });
-    exportMenu.add(exportToOPMLMenuItem);
-
-    fileMenu.add(exportMenu);
-
     analyzeMenuItem.setText("Analyze...");
     analyzeMenuItem.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -724,6 +762,26 @@ public class TunesChecker
       }
     });
     fileMenu.add(clearMenuItem);
+
+    exportMenu.setText("Export");
+
+    exportToOPMLMenuItem.setText("To OPML...");
+    exportToOPMLMenuItem.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        exportToOPMLMenuItemActionPerformed(evt);
+      }
+    });
+    exportMenu.add(exportToOPMLMenuItem);
+
+    exportToTabDelim.setText("To Tab-Delimited...");
+    exportToTabDelim.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        exportToTabDelimActionPerformed(evt);
+      }
+    });
+    exportMenu.add(exportToTabDelim);
+
+    fileMenu.add(exportMenu);
 
     mainMenuBar.add(fileMenu);
 
@@ -777,6 +835,10 @@ public class TunesChecker
     exportToOPML();
   }//GEN-LAST:event_exportToOPMLMenuItemActionPerformed
 
+  private void exportToTabDelimActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportToTabDelimActionPerformed
+    exportToTabDelim();
+  }//GEN-LAST:event_exportToTabDelimActionPerformed
+
   /**
    @param args the command line arguments
    */
@@ -824,6 +886,7 @@ public class TunesChecker
   private javax.swing.JMenu editMenu;
   private javax.swing.JMenu exportMenu;
   private javax.swing.JMenuItem exportToOPMLMenuItem;
+  private javax.swing.JMenuItem exportToTabDelim;
   private javax.swing.JMenu fileMenu;
   private javax.swing.JMenu helpMenu;
   private javax.swing.JPanel libsPanel;

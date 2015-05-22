@@ -25,21 +25,6 @@
                 <Property name="text" type="java.lang.String" value="Open Library 2..."/>
               </Properties>
             </MenuItem>
-            <Menu class="javax.swing.JMenu" name="exportMenu">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Export"/>
-              </Properties>
-              <SubComponents>
-                <MenuItem class="javax.swing.JMenuItem" name="exportToOPMLMenuItem">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="To OPML..."/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="exportToOPMLMenuItemActionPerformed"/>
-                  </Events>
-                </MenuItem>
-              </SubComponents>
-            </Menu>
             <MenuItem class="javax.swing.JMenuItem" name="analyzeMenuItem">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Analyze..."/>
@@ -57,6 +42,29 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="clearMenuItemActionPerformed"/>
               </Events>
             </MenuItem>
+            <Menu class="javax.swing.JMenu" name="exportMenu">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Export"/>
+              </Properties>
+              <SubComponents>
+                <MenuItem class="javax.swing.JMenuItem" name="exportToOPMLMenuItem">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="To OPML..."/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="exportToOPMLMenuItemActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="exportToTabDelim">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="To Tab-Delimited..."/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="exportToTabDelimActionPerformed"/>
+                  </Events>
+                </MenuItem>
+              </SubComponents>
+            </Menu>
           </SubComponents>
         </Menu>
         <Menu class="javax.swing.JMenu" name="editMenu">
