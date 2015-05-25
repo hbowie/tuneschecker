@@ -338,12 +338,14 @@ public class TunesAlbum
       else
       if (sources.isFromFolder(libIndex)) {
         collection.addAnomaly(libIndex, this,  
-            TunesAnomaly.ON_DISK_NOT_IN_LIB, analysis);
+            analysis.getAnomalyType(AnomalyTypeTable.ON_DISK_NOT_IN_LIB), 
+            analysis);
       } 
       else
       if (sources.isFromLibrary(libIndex)) {
         collection.addAnomaly(libIndex, this,  
-            TunesAnomaly.IN_LIB_NOT_ON_DISK, analysis);
+            analysis.getAnomalyType(AnomalyTypeTable.IN_LIB_NOT_ON_DISK), 
+            analysis);
       }
     } // end for each library
     
@@ -362,7 +364,8 @@ public class TunesAlbum
           nextTrack = tracksByNumber.get(trackNumber);
         }
         if (nextTrack == null) {
-          collection.addAnomaly(-1, this, TunesAnomaly.MISSING_TRACK_NUMBER, 
+          collection.addAnomaly(-1, this, 
+              analysis.getAnomalyType(AnomalyTypeTable.MISSING_TRACK_NUMBER), 
               trackNumber, analysis);
         }
       }

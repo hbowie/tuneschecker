@@ -330,12 +330,14 @@ public class TunesTrack
       else
       if (sources.isFromFolder(libIndex)) {
         collection.addAnomaly(libIndex, this,  
-            TunesAnomaly.ON_DISK_NOT_IN_LIB, analysis);
+            analysis.getAnomalyType(AnomalyTypeTable.ON_DISK_NOT_IN_LIB), 
+            analysis);
       } 
       else
       if (sources.isFromLibrary(libIndex)) {
         collection.addAnomaly(libIndex, this,  
-            TunesAnomaly.IN_LIB_NOT_ON_DISK, analysis);
+            analysis.getAnomalyType(AnomalyTypeTable.IN_LIB_NOT_ON_DISK), 
+            analysis);
       }
     } // end for each library
     

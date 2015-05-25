@@ -45,6 +45,8 @@ public class TunesCollection {
       = new DefaultMutableTreeNode("Anomalies");
   private DefaultTreeModel anomalies;
   
+  private int     anomalyCount = 0;
+  
   public TunesCollection() {
     compilations.setArtist("Compilations");
     libraries = new LibraryTable();
@@ -54,6 +56,10 @@ public class TunesCollection {
   
   public TreeModel getAnomalies() {
     return anomalies;
+  }
+  
+  public int getAnomalyCount() {
+    return anomalyCount;
   }
   
   public TunesArtist getCompilations() {
@@ -179,6 +185,9 @@ public class TunesCollection {
     }
   }
   
+  /**
+   Analyze the collection and identify anomalies. 
+  */
   public void analyze(TunesAnalysis analysis) {
 
     for (TunesArtist nextArtist: artists) {
@@ -226,39 +235,43 @@ public class TunesCollection {
   public DefaultMutableTreeNode addAnomaly(
       int libIndex, 
       TunesObject object, 
-      int anomalyType,
+      AnomalyType anomalyType,
       TunesAnalysis analysis) {
     
-    // If the object is not already in the tree, then add it
-    if (object.getAnomalyNode() == null) {
-      object.addToAnomalyTree(analysis);
+    DefaultMutableTreeNode anomalyNode = null;
+    if (anomalyType.isSelected()) {
+      // If the object is not already in the tree, then add it
+      if (object.getAnomalyNode() == null) {
+        object.addToAnomalyTree(analysis);
+      }
+      // Now let's create an anomaly object
+      TunesAnomaly anomaly = new TunesAnomaly(libIndex, object, anomalyType);
+      anomalyNode = addToTree(object.getAnomalyNode(), anomaly);
     }
-    
-    // Now let's create an anomaly object
-    TunesAnomaly anomaly = new TunesAnomaly(libIndex, object, anomalyType);
-    
-    return addToTree(object.getAnomalyNode(), anomaly);
-
+    anomalyCount++;
+    return anomalyNode;
   }
   
   public DefaultMutableTreeNode addAnomaly(
       int libIndex, 
       TunesObject object, 
-      int anomalyType,
+      AnomalyType anomalyType,
       int trackNumber,
       TunesAnalysis analysis) {
     
-    // If the object is not already in the tree, then add it
-    if (object.getAnomalyNode() == null) {
-      object.addToAnomalyTree(analysis);
+    DefaultMutableTreeNode anomalyNode = null;
+    if (anomalyType.isSelected()) {
+      // If the object is not already in the tree, then add it
+      if (object.getAnomalyNode() == null) {
+        object.addToAnomalyTree(analysis);
+      }
+      // Now let's create an anomaly object
+      TunesAnomaly anomaly = new TunesAnomaly
+          (libIndex, object, anomalyType, trackNumber);
+      anomalyNode = addToTree(object.getAnomalyNode(), anomaly);
     }
-    
-    // Now let's create an anomaly object
-    TunesAnomaly anomaly = new TunesAnomaly
-        (libIndex, object, anomalyType, trackNumber);
-    
-    return addToTree(object.getAnomalyNode(), anomaly);
-
+    anomalyCount++;
+    return anomalyNode;
   }
   
   /**

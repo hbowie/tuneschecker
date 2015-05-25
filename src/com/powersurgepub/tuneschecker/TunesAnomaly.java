@@ -24,18 +24,9 @@ package com.powersurgepub.tuneschecker;
 public class TunesAnomaly
     implements TunesObject {
   
-  public static final String[] ANOMALY_TYPE = {
-    "On disk, but not in library",
-    "In library, but not on disk",
-    "Missing track # "
-  };
-  public static final int ON_DISK_NOT_IN_LIB = 0;
-  public static final int IN_LIB_NOT_ON_DISK = 1;
-  public static final int MISSING_TRACK_NUMBER = 2;
-  
   private int         libIndex = -1;
   private TunesObject object = null;
-  private int         anomalyType = -1;
+  private AnomalyType anomalyType = null;
   private int         trackNumber = -1;
   
   private DefaultMutableTreeNode  anomalyNode = null;
@@ -43,7 +34,7 @@ public class TunesAnomaly
   public TunesAnomaly(
       int libIndex, 
       TunesObject object, 
-      int anomalyType) {
+      AnomalyType anomalyType) {
     
     this.libIndex = libIndex;
     this.object = object;
@@ -53,7 +44,7 @@ public class TunesAnomaly
   public TunesAnomaly(
       int libIndex, 
       TunesObject object, 
-      int anomalyType,
+      AnomalyType anomalyType,
       int trackNumber) {
     
     this.libIndex = libIndex;
@@ -70,9 +61,9 @@ public class TunesAnomaly
   @Override
   public String toString() {
     if (trackNumber < 1) {
-      return "Anomaly: " + ANOMALY_TYPE[anomalyType];
+      return "Anomaly: " + anomalyType.getMessage();
     } else {
-      return "Anomaly: " + ANOMALY_TYPE[anomalyType] + String.valueOf(trackNumber);
+      return "Anomaly: " + anomalyType.getMessage() + String.valueOf(trackNumber);
     }
   }
   

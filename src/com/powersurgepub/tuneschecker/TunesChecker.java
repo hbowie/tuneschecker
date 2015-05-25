@@ -54,6 +54,8 @@ public class TunesChecker
   // public static final String OPML_EXPORT      = "export-to-opml";
   // public static final String TAB_DELIM_EXPORT = "export-to-tab-delim";
   public static final String EXPORT_FOLDER    = "export-folder";
+  public static final String LAST_TRACK_COUNT = "last-track-count";
+  public static final String LAST_ANOMALY_COUNT = "last-anomaly-count";
   
   public static final String PROGRAM_NAME    = "TunesChecker";
   public static final String PROGRAM_VERSION = "0.20";
@@ -102,6 +104,8 @@ public class TunesChecker
   
   private             TunesCollection     tunes;
   private             TunesParser         tunesParser;
+  
+  private             int                 currTrackCount = 0;
 
   /**
    Creates new form TunesChecker
@@ -181,6 +185,16 @@ public class TunesChecker
         && musicFolder.canRead()) {
       fileChooser.setCurrentDirectory(musicFolder);
     }
+    
+    int lastTrackCount = userPrefs.getPrefAsInt(LAST_TRACK_COUNT, -1);
+    if (lastTrackCount > 0) {
+      lastTrackCountText.setText(String.valueOf(lastTrackCount));
+    }
+    
+    int lastAnomalyCount = userPrefs.getPrefAsInt(LAST_ANOMALY_COUNT, -1);
+    if (lastAnomalyCount >= 0) {
+      lastAnomalyCountText.setText(String.valueOf(lastAnomalyCount));
+    }
   }
   
   public RecentFiles getRecentFiles () {
@@ -225,12 +239,21 @@ public class TunesChecker
     
     tunes = new TunesCollection();
     tunesParser = new TunesParser();
+    
     libsTable.setModel(tunes.getLibraries());
     TableColumn column;
     for (int i = 0; i < tunes.getLibraries().getColumnCount(); i++) {
       column = libsTable.getColumnModel().getColumn(i);
       column.setPreferredWidth(tunes.getLibraries().getColumnWidth(i)); 
     }
+    
+    AnomalyTypeTable anomalyTypes = AnomalyTypeTable.getShared();
+    anomalyTypesTable.setModel(anomalyTypes);
+    for (int i = 0; i < anomalyTypes.getColumnCount(); i++) {
+      column = anomalyTypesTable.getColumnModel().getColumn(i);
+      column.setPreferredWidth(anomalyTypes.getColumnWidth(i)); 
+    }
+    
     anomaliesTree.setModel(tunes.getAnomalies());
   }
   
@@ -341,6 +364,7 @@ public class TunesChecker
             tunes, 
             libIndex, 
             libraryFile.toString());
+        setTrackCount(tracksLoaded);
         tunes.getLibraries().fireTableDataChanged();
         Logger.getShared().recordEvent(LogEvent.NORMAL, 
             "Loaded " + String.valueOf(tracksLoaded) + " tracks", false);
@@ -369,6 +393,14 @@ public class TunesChecker
     }
   }
   
+  private void setTrackCount(int trackCount) {
+    if (trackCount > currTrackCount) {
+      currTrackCount = trackCount;
+      currTrackCountText.setText(String.valueOf(trackCount));
+      userPrefs.setPref(LAST_TRACK_COUNT, trackCount);
+    }
+  }
+  
   private void openMediaMusicFolder(int libIndex, File inFolder) {
     String folderName = inFolder.getName();
     if (! folderName.equalsIgnoreCase(MUSIC)) {
@@ -380,8 +412,9 @@ public class TunesChecker
         && inFolder.exists()
         && inFolder.isDirectory()) {
       int tracksLoaded = tunesParser.scanMediaMusicFolder(tunes, libIndex, inFolder);
-            Logger.getShared().recordEvent(LogEvent.NORMAL, 
+      Logger.getShared().recordEvent(LogEvent.NORMAL, 
           "Loaded " + String.valueOf(tracksLoaded) + " tracks", false);
+      setTrackCount(tracksLoaded);
     }
   }
   
@@ -455,6 +488,9 @@ public class TunesChecker
     
   }
   
+  /**
+   Analyze the collection and identify anomalies. 
+  */
   private void analyze() {
     TunesAnalysis analysis = new TunesAnalysis();
     analysis.setAttributesOption(attributesOptionCheckBox.isSelected());
@@ -465,7 +501,10 @@ public class TunesChecker
     
     tunes.analyze(analysis);
     
-    tabs.setSelectedComponent(treePanel);
+    currAnomalyCountText.setText(String.valueOf(tunes.getAnomalyCount()));
+    userPrefs.setPref(LAST_ANOMALY_COUNT, tunes.getAnomalyCount());
+    
+    // tabs.setSelectedComponent(treePanel);
   }
   
   /**
@@ -551,11 +590,21 @@ public class TunesChecker
     clearButton = new javax.swing.JButton();
     libsScrollPane = new javax.swing.JScrollPane();
     libsTable = new javax.swing.JTable();
+    currTrackCountLabel = new javax.swing.JLabel();
+    currTrackCountText = new javax.swing.JLabel();
+    lastTrackCountLabel = new javax.swing.JLabel();
+    lastTrackCountText = new javax.swing.JLabel();
+    currAnomalyCountLabel = new javax.swing.JLabel();
+    currAnomalyCountText = new javax.swing.JLabel();
+    lastAnomalyCountLabel = new javax.swing.JLabel();
+    lastAnomalyCountText = new javax.swing.JLabel();
     optionsPanel = new javax.swing.JPanel();
     attributesOptionLabel = new javax.swing.JLabel();
     attributesOptionCheckBox = new javax.swing.JCheckBox();
     minTracksLabel = new javax.swing.JLabel();
     minTracksSlider = new javax.swing.JSlider();
+    anomalyTypesScrollPane = new javax.swing.JScrollPane();
+    anomalyTypesTable = new javax.swing.JTable();
     treePanel = new javax.swing.JPanel();
     treeScrollPane = new javax.swing.JScrollPane();
     anomaliesTree = new javax.swing.JTree();
@@ -588,6 +637,7 @@ public class TunesChecker
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
     gridBagConstraints.gridy = 0;
+    gridBagConstraints.gridwidth = 2;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
     gridBagConstraints.weightx = 0.5;
     gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
@@ -600,8 +650,9 @@ public class TunesChecker
       }
     });
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridx = 2;
     gridBagConstraints.gridy = 0;
+    gridBagConstraints.gridwidth = 2;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
     gridBagConstraints.weightx = 0.5;
     gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
@@ -616,6 +667,7 @@ public class TunesChecker
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
     gridBagConstraints.gridy = 1;
+    gridBagConstraints.gridwidth = 2;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
     gridBagConstraints.weightx = 0.5;
     gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
@@ -628,8 +680,9 @@ public class TunesChecker
       }
     });
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridx = 2;
     gridBagConstraints.gridy = 1;
+    gridBagConstraints.gridwidth = 2;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
     gridBagConstraints.weightx = 0.5;
     gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
@@ -650,12 +703,76 @@ public class TunesChecker
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 2;
-    gridBagConstraints.gridwidth = 2;
+    gridBagConstraints.gridy = 4;
+    gridBagConstraints.gridwidth = 4;
     gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
     gridBagConstraints.weightx = 1.0;
     gridBagConstraints.weighty = 1.0;
     libsPanel.add(libsScrollPane, gridBagConstraints);
+
+    currTrackCountLabel.setText("Current Track Count:");
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 2;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(4, 12, 4, 4);
+    libsPanel.add(currTrackCountLabel, gridBagConstraints);
+
+    currTrackCountText.setText("   ");
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 2;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+    gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 12);
+    libsPanel.add(currTrackCountText, gridBagConstraints);
+
+    lastTrackCountLabel.setText("Last Track Count:");
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 3;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(4, 12, 12, 4);
+    libsPanel.add(lastTrackCountLabel, gridBagConstraints);
+
+    lastTrackCountText.setText("   ");
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 3;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+    gridBagConstraints.insets = new java.awt.Insets(4, 4, 12, 12);
+    libsPanel.add(lastTrackCountText, gridBagConstraints);
+
+    currAnomalyCountLabel.setText("Current Anomaly Count:");
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 2;
+    gridBagConstraints.gridy = 2;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(4, 12, 4, 4);
+    libsPanel.add(currAnomalyCountLabel, gridBagConstraints);
+
+    currAnomalyCountText.setText("   ");
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 3;
+    gridBagConstraints.gridy = 2;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+    gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 12);
+    libsPanel.add(currAnomalyCountText, gridBagConstraints);
+
+    lastAnomalyCountLabel.setText("Last Anomaly Count:");
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 2;
+    gridBagConstraints.gridy = 3;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(4, 12, 12, 4);
+    libsPanel.add(lastAnomalyCountLabel, gridBagConstraints);
+
+    lastAnomalyCountText.setText("   ");
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 3;
+    gridBagConstraints.gridy = 3;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+    gridBagConstraints.insets = new java.awt.Insets(4, 4, 12, 12);
+    libsPanel.add(lastAnomalyCountText, gridBagConstraints);
 
     tabs.addTab("Libraries", libsPanel);
 
@@ -699,6 +816,28 @@ public class TunesChecker
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
     optionsPanel.add(minTracksSlider, gridBagConstraints);
+
+    anomalyTypesTable.setModel(new javax.swing.table.DefaultTableModel(
+      new Object [][] {
+        {null, null, null, null},
+        {null, null, null, null},
+        {null, null, null, null},
+        {null, null, null, null}
+      },
+      new String [] {
+        "Title 1", "Title 2", "Title 3", "Title 4"
+      }
+    ));
+    anomalyTypesScrollPane.setViewportView(anomalyTypesTable);
+
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 2;
+    gridBagConstraints.gridwidth = 2;
+    gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+    gridBagConstraints.weightx = 1.0;
+    gridBagConstraints.weighty = 1.0;
+    optionsPanel.add(anomalyTypesScrollPane, gridBagConstraints);
 
     tabs.addTab("Options", optionsPanel);
 
@@ -879,16 +1018,26 @@ public class TunesChecker
   private javax.swing.JButton analyzeButton;
   private javax.swing.JMenuItem analyzeMenuItem;
   private javax.swing.JTree anomaliesTree;
+  private javax.swing.JScrollPane anomalyTypesScrollPane;
+  private javax.swing.JTable anomalyTypesTable;
   private javax.swing.JCheckBox attributesOptionCheckBox;
   private javax.swing.JLabel attributesOptionLabel;
   private javax.swing.JButton clearButton;
   private javax.swing.JMenuItem clearMenuItem;
+  private javax.swing.JLabel currAnomalyCountLabel;
+  private javax.swing.JLabel currAnomalyCountText;
+  private javax.swing.JLabel currTrackCountLabel;
+  private javax.swing.JLabel currTrackCountText;
   private javax.swing.JMenu editMenu;
   private javax.swing.JMenu exportMenu;
   private javax.swing.JMenuItem exportToOPMLMenuItem;
   private javax.swing.JMenuItem exportToTabDelim;
   private javax.swing.JMenu fileMenu;
   private javax.swing.JMenu helpMenu;
+  private javax.swing.JLabel lastAnomalyCountLabel;
+  private javax.swing.JLabel lastAnomalyCountText;
+  private javax.swing.JLabel lastTrackCountLabel;
+  private javax.swing.JLabel lastTrackCountText;
   private javax.swing.JPanel libsPanel;
   private javax.swing.JScrollPane libsScrollPane;
   private javax.swing.JTable libsTable;

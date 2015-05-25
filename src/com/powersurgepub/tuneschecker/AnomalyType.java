@@ -16,38 +16,42 @@
 package com.powersurgepub.tuneschecker;
 
 /**
- An object used to perform analysis of a tunes collection. 
+ A type of anomaly. 
 
  @author Herb Bowie
  */
-public class TunesAnalysis {
+public class AnomalyType {
   
-  private boolean attributesOption = false;
-  private int     minTracks = 2;
-  private AnomalyTypeTable anomalyTypes = AnomalyTypeTable.getShared();
+  private Boolean selected  = new Boolean(true);;
+  private Integer id        = new Integer(0);
+  private String  message   = "";
   
-  public TunesAnalysis() {
-    
+  /**
+   Constructor. 
+  */
+  public AnomalyType(int id, String message) {
+    this.id = new Integer(id);
+    this.message = message;
   }
   
-  public void setAttributesOption(boolean attributesOption) {
-    this.attributesOption = attributesOption;
+  public Integer getID() {
+    return id;
   }
   
-  public boolean getAttributesOption() {
-    return attributesOption;
+  public String getMessage() {
+    return message;
   }
   
-  public void setMinTracks(int minTracks) {
-    this.minTracks = minTracks;
+  public void setSelected(boolean selected) {
+    this.selected = new Boolean(selected);
   }
   
-  public int getMinTracks() {
-    return minTracks;
+  public boolean isSelected() {
+    return selected.booleanValue();
   }
   
-  public AnomalyType getAnomalyType(int index) {
-    return anomalyTypes.get(index);
+  public Boolean getSelected() {
+    return selected;
   }
 
 }
