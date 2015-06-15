@@ -652,12 +652,15 @@ public class TunesParser
       track.setFileName(trackFileName.getFileName());
     }
     track.getSources().setFromLibrary(libIndex);
+    // int priorNumberOfTracks = album.getNumberOfTracks();
     track = album.storeTrack(track);
     
     file.getSources().setFromLibrary(libIndex);
     file = track.storeFile(file);
     
-    tracksLoaded++;
+    // if (album.getNumberOfTracks() > priorNumberOfTracks) {
+      tracksLoaded++;
+    // }
   }
 
   /**

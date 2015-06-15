@@ -201,30 +201,6 @@ public class TunesChecker
     return recentFiles;
   }
   
-  private void openLibrary1() {
-    libIndex = 0;
-    if (tunes.getLibraries().size() != libIndex) {
-      trouble.report(this, 
-          "Libraries must be opened in sequence", 
-          "Library Sequence Error", 
-          JOptionPane.ERROR_MESSAGE);
-    } else {
-      openFile();
-    }
-  }
-  
-  private void openLibrary2() {
-    libIndex = 1;
-    if (tunes.getLibraries().size() != libIndex) {
-      trouble.report(this, 
-          "Libraries must be opened in sequence", 
-          "Library Sequence Error", 
-          JOptionPane.ERROR_MESSAGE);
-    } else {
-      openFile();
-    }
-  }
-  
   /**
    Clear any work done so far and prepare to load a new collection.
   */
@@ -239,6 +215,7 @@ public class TunesChecker
     
     tunes = new TunesCollection();
     tunesParser = new TunesParser();
+    libIndex = 0;
     
     libsTable.setModel(tunes.getLibraries());
     TableColumn column;
@@ -257,6 +234,39 @@ public class TunesChecker
     anomaliesTree.setModel(tunes.getAnomalies());
   }
   
+  /**
+   User is explicitly asking for Library 1 to be opened. 
+  */
+  private void openLibrary1() {
+    libIndex = 0;
+    if (tunes.getLibraries().size() != libIndex) {
+      trouble.report(this, 
+          "Libraries must be opened in sequence", 
+          "Library Sequence Error", 
+          JOptionPane.ERROR_MESSAGE);
+    } else {
+      openFile();
+    }
+  }
+  
+  /**
+   User is explicitly asking for Library 2 to be opened. 
+  */
+  private void openLibrary2() {
+    libIndex = 1;
+    if (tunes.getLibraries().size() != libIndex) {
+      trouble.report(this, 
+          "Libraries must be opened in sequence", 
+          "Library Sequence Error", 
+          JOptionPane.ERROR_MESSAGE);
+    } else {
+      openFile();
+    }
+  }  
+  
+  /**
+   Ask the user to select a file or a folder.
+  */
   private void openFile() {
 
     fileToOpen = null;
@@ -276,14 +286,6 @@ public class TunesChecker
     
   }
   
-  /**
-     Standard way to respond to an About Menu Item Selection on a Mac.
-   */
-  @Override
-  public void handleAbout() {
-    displayAuxiliaryWindow(aboutWindow);
-  }
-  
   /**      
     Standard way to respond to a document being passed to this application on a Mac.
    
@@ -299,49 +301,32 @@ public class TunesChecker
   /**      
     Standard way to respond to a document being passed to this application on a Mac.
    
-    @param inFile File to be processed by this application, generally
-                  as a result of a file or directory being dragged
-                  onto the application icon.
+    @param inFile File or folder to be processed by this application.
    */
   @Override
   public void handleOpenFile (File inFile) {
     if (inFile.isFile()) {
       openLibraryFile(inFile);
     } else {
-      String[] dirEntries = inFile.list();
-      String dirEntry = "";
-      boolean libraryFound = false;
-      boolean musicFolderFound = false;
-      int i = 0;
-      while (i < dirEntries.length 
-          && (! libraryFound)
-          && (! musicFolderFound)) {
-        dirEntry = dirEntries[i];
-        if (dirEntry.endsWith(".xml")) {
-          libraryFound = true;
-        } // end if we've got an xml file
-        else
-        if (dirEntry.equals(MUSIC)) {
-          musicFolderFound = true;
-        }
-        else {
-          i++;
-        }
-      } // end while looking for an xml file
-      if (libraryFound) {
-        File libraryFile = new File(inFile, dirEntry);
+      // We have a folder to process
+      File folder = inFile;
+      File libraryFile = new File(folder, "iTunes Music Library.xml");
+      if (libraryFile.exists()) {
         openLibraryFile(libraryFile);
-      }
-      else
-      if (musicFolderFound) {
-        // Can't do anything here
-        // File mediaMusicFolder = new File(inFile, dirEntry);
-        // openMediaMusicFolder(mediaMusicFolder);
       } else {
-        // openMediaMusicFolder(inFile);
+        libraryFile = new File(folder, "iTunes Library.xml");
+        if (libraryFile.exists()) {
+          openLibraryFile(libraryFile);
+        } else {
+          File mediaMusicFolder = new File(folder, "Music");
+          if (mediaMusicFolder.exists()) {
+            openMediaMusicFolder(mediaMusicFolder);
+          } else {
+            openMediaMusicFolder(folder);
+          }
+        }
       }
-    } // end if we have a folder instead of a file
-      
+    } // end if file passed to us is a folder
   } // end method handleOpenFile
   
   /**
@@ -385,8 +370,8 @@ public class TunesChecker
           Logger.getShared().recordEvent(LogEvent.MINOR, 
               "Music Folder cannot be read: " + folder.toString(), false);
         } else {
-          fileChooser.setCurrentDirectory(folder);
-          openMediaMusicFolder(libIndex, folder);
+          // fileChooser.setCurrentDirectory(folder);
+          openMediaMusicFolder(folder);
         }
       }
       tunes.getLibraries().fireTableDataChanged();
@@ -401,7 +386,7 @@ public class TunesChecker
     }
   }
   
-  private void openMediaMusicFolder(int libIndex, File inFolder) {
+  private void openMediaMusicFolder(File inFolder) {
     String folderName = inFolder.getName();
     if (! folderName.equalsIgnoreCase(MUSIC)) {
       // No can do
@@ -505,6 +490,14 @@ public class TunesChecker
     userPrefs.setPref(LAST_ANOMALY_COUNT, tunes.getAnomalyCount());
     
     // tabs.setSelectedComponent(treePanel);
+  }
+  
+  /**
+     Standard way to respond to an About Menu Item Selection on a Mac.
+   */
+  @Override
+  public void handleAbout() {
+    displayAuxiliaryWindow(aboutWindow);
   }
   
   /**

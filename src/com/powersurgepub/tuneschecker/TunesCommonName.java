@@ -64,6 +64,7 @@ public class TunesCommonName {
     dict.put("electric", FIRST_NAME_OF_BAND);
     dict.put("fairport", FIRST_NAME_OF_BAND);
     dict.put("grateful", FIRST_NAME_OF_BAND);
+    dict.put("howlin", FIRST_NAME_OF_BAND);
     dict.put("howling", FIRST_NAME_OF_BAND);
     dict.put("lovin", FIRST_NAME_OF_BAND);
     dict.put("muddy", FIRST_NAME_OF_BAND);

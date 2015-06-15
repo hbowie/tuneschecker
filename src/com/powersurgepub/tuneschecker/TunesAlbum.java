@@ -292,6 +292,15 @@ public class TunesAlbum
     return track;
   }
   
+  /**
+   Return the actual number of track objects stored in this album object. 
+  
+   @return The number of track object stored in this album object. 
+  */
+  public int getNumberOfTracks() {
+    return tracks.size();
+  }
+  
   public void display() {
     System.out.print("    " + sortAlbum);
     if (! album.equals(sortAlbum)) {
