@@ -31,11 +31,13 @@ public class AnomalyTypeTable
   public static final String[] ANOMALY_TYPE = {
     "On disk, but not in library",
     "In library, but not on disk",
-    "Missing track # "
+    "Missing track # ",
+    "Missing from library"
   };
   public static final int ON_DISK_NOT_IN_LIB = 0;
   public static final int IN_LIB_NOT_ON_DISK = 1;
   public static final int MISSING_TRACK_NUMBER = 2;
+  public static final int MISSING_FROM_LIBRARY = 3;
   
   public static final String[] COLUMN_NAMES = {
     "Sel?", "ID", "Message"
@@ -50,6 +52,7 @@ public class AnomalyTypeTable
     add(ON_DISK_NOT_IN_LIB, ANOMALY_TYPE[ON_DISK_NOT_IN_LIB]);
     add(IN_LIB_NOT_ON_DISK, ANOMALY_TYPE[IN_LIB_NOT_ON_DISK]);
     add(MISSING_TRACK_NUMBER, ANOMALY_TYPE[MISSING_TRACK_NUMBER]);
+    add(MISSING_FROM_LIBRARY, ANOMALY_TYPE[MISSING_FROM_LIBRARY]);
   }
   
   /**

@@ -338,6 +338,10 @@ public class TunesTrack
         collection.addAnomaly(libIndex, this,  
             analysis.getAnomalyType(AnomalyTypeTable.IN_LIB_NOT_ON_DISK), 
             analysis);
+      } else {
+        collection.addAnomaly(libIndex, this, 
+            analysis.getAnomalyType(AnomalyTypeTable.MISSING_FROM_LIBRARY), 
+            analysis);
       }
     } // end for each library
     

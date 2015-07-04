@@ -341,6 +341,12 @@ public class TunesParser
         else
         if (key.equalsIgnoreCase("Kind")) {
           file.setKind(str.toString());
+          String kind = str.toString().toLowerCase();
+          if (kind.endsWith(" app")
+              || kind.endsWith("book")
+              || kind.startsWith("pdf")) {
+            musicTrack = false;
+          }
         }
         else
         if (key.equalsIgnoreCase("Location")) {
@@ -350,6 +356,9 @@ public class TunesParser
               && location.startsWith(musicFolder)
               && (! location.substring(musicFolder.length(), 
                 musicFolder.length() + 5).equalsIgnoreCase(MUSIC))) {
+            musicTrack = false;
+          }
+          if (location.contains("/Tones/")) {
             musicTrack = false;
           }
         }
@@ -609,6 +618,10 @@ public class TunesParser
     albumArtist = "";
   }
   
+  /**
+   Now that we're done parsing all the information for one track, let's go
+   ahead and store the information in our internal model. 
+  */
   private void processTrack() {
     
     if (album.isCompilation()) {

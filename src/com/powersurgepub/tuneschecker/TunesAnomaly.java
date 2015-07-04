@@ -60,11 +60,14 @@ public class TunesAnomaly
   */
   @Override
   public String toString() {
-    if (trackNumber < 1) {
-      return "Anomaly: " + anomalyType.getMessage();
-    } else {
-      return "Anomaly: " + anomalyType.getMessage() + String.valueOf(trackNumber);
+    StringBuilder msg = new StringBuilder("Anomaly: " + anomalyType.getMessage());
+    if (libIndex >= 0) {
+      msg.append(" lib " + String.valueOf(libIndex + 1));
     }
+    if (trackNumber >= 1) {
+      msg.append(" track " + String.valueOf(trackNumber));
+    } 
+    return msg.toString();
   }
   
   /**
