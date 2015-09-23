@@ -65,7 +65,9 @@ public class TunesAnomaly
       msg.append(" lib " + String.valueOf(libIndex + 1));
     }
     if (trackNumber >= 1) {
-      msg.append(" track " + String.valueOf(trackNumber));
+      msg.append(
+          /* " track " + */
+          String.valueOf(trackNumber));
     } 
     return msg.toString();
   }
